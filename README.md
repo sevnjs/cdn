@@ -13,8 +13,9 @@
 # Version History
 
 ### v0.8.3
-- improve parsemd to work with checklist and fix html codeblock
-- grab and append to define specific element when selecting from classname or elementtag using [number], say `grab("h1[2]"")` or `append("h1[2]"","newheading","r")`.
+- Improve parsemd to work with checklist and fix html codeblock
+- Improved grab and append to define specific element when selecting from classname or elementtag using [number], say `grab("h1[2]"")` or `append("h1[2]"","newheading","r")`.
+- Show version in load
 
 
 ### v0.8.2

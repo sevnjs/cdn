@@ -1491,7 +1491,7 @@ function SevnJS() {
     self.init = (RequiredFunctions) => {
         self.loadBasicHtmlVariables();
         self.loadFunctions(RequiredFunctions);
-        console.info('SevnJS Ready');
+        console.info(`SevnJS version ${version}\ Ready`);
     };
     // self.init();
     self.loadBasicHtmlVariables();
