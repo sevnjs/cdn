@@ -6,8 +6,8 @@ function SevnJS() {
     const grab = (parentidstr) => {
         var match = parentidstr.match(/^([^\[]*)\[*(\d*)\]*$/mi);
         var parentid = match[1];
-        if (match[2].length > 0) var no = match[2]
-
+        // if (match[2].length > 0) var no = match[2]
+        var no = match[2] > 0 ? match[2] : 0;
         var parentElement = null;
         try {
             if (parentid instanceof Object == true) { parentElement = parentid }
@@ -90,7 +90,7 @@ function SevnJS() {
             list: /^\s*(?m:^(?:\s*(?:\*|-|\d+\.)\s+[^\n]+)(?:\n|$))+/m,
             reference: /^\n+\-{3,}$/im,
             paragraph: /^(^[^-#|>\s][^\n]*(?:\n[^-#|>\s][^\n]*)*)/im,
-
+            empty: /^\s*[\s\n]*/m,
         }
 
 
@@ -99,24 +99,56 @@ function SevnJS() {
             var pattern = /^\s*```([^\n]*)\n([^`]*)```[\s\n]*/mi;
             const match = block.match(pattern);
             if (match) {
-                var matchArray = Array.from(match)
-                var res = gens(pre, "", gens(code, "", matchArray[2], `language-${matchArray[1]},${matchArray[1]},code-block`))
+                var matchArray = Array.from(match);
+                var content = matchArray[2];
+                var lang = matchArray[1];
+                var res = gens(pre, "", gens(code, "", content, `language-${lang},${lang},code-block`));
                 return res
+            }
+        }
+
+        const checklistrender = (block) => {
+            // var pattern = /^\s*(?:^\s*-\s+\[(?:\s*|[xX*])\]\s+[^\n]*\n?)+/gm;
+            // var pattern = /^\s*-\s+\[(?:\s*|[xX*])\]\s+[^\n]*$/gm;
+            // const match = block.match(pattern);
+            var pattern = /-\s+\[([^\]]*)\]\s+([^\n]*)/gm;
+            const match = block.matchAll(pattern);
+            var res = "";
+            if (match) {
+                var matchArray = Array.from(match);
+                matchArray.forEach(parts=>{
+                    var checked = (parts[1]== " ") ? false:true;
+                    var checkboxid = `checkbox-id-${checkboxno}`;
+                    res += gens(input,checkboxid,parts[2],"parsemd",{value:parts[2],"type":"checkbox",checked:checked})+gens(label,"",parts[2],"parsemd",{"for":checkboxid})+"<br>";
+                    res=res.replaceAll(`checked="false"`,"");
+                    checkboxno += 1;
+                })
+                return res
+            }
+        }
+
+
+
+        const emptyrender = (block) => {
+            var pattern = /^(\s*[\s\n]*)/m;
+            const match = block.match(pattern);
+            if (match) {
+                return `<br>`
             }
         }
 
         const tablerender = (table) => {
 
 
-            var tableHeadBodySepratorPattern = /(^\|)(?=(:|-))([^\w\d\s]*?)(\|\s*$)/gm
-            var sep = table.matchAll(tableHeadBodySepratorPattern)
-            var sep = Array.from(sep)
+            var tableHeadBodySepratorPattern = /(^\|)(?=(:|-))([^\w\d\s]*?)(\|\s*$)/gm;
+            var sep = table.matchAll(tableHeadBodySepratorPattern);
+            var sep = Array.from(sep);
             if (sep.length > 0) {
-                var Sep = sep[0][0]
-                var alignment = Sep.substr(1, Sep.length - 2)
-                alignment = alignment.replaceAll(":---:", "center").replaceAll(":---", "left").replaceAll("---:", "right").replaceAll("---", "justify")
-                alignment = alignment.split("|")
-                var T = table.split(Sep)
+                var Sep = sep[0][0];
+                var alignment = Sep.substr(1, Sep.length - 2);
+                alignment = alignment.replaceAll(":---:", "center").replaceAll(":---", "left").replaceAll("---:", "right").replaceAll("---", "justify");
+                alignment = alignment.split("|");
+                var T = table.split(Sep);
                 var thead = T[0];
                 var tbody = T[1];
                 thead = `\n\t<thead>${tableRowsParser(thead, alignment)}\n</thead>`;
@@ -454,13 +486,15 @@ function SevnJS() {
         // // code
         // https://regex101.com/r/WpO7gY/1
         // codePattern = /```([^\s]*)([^```]*)```/gmi
-        var codePattern = /`{3}([^\n]*)\n([^`]*)`{3}/gmi
-        var match1 = mdinput.matchAll(codePattern)
-        var matchList = Array.from(match1)
-        matchList.forEach(p => {
-            //               console.log(p)
-            mdinput = mdinput.replaceAll(p[0], `\n<pre><code class="${p[1]}, language-${p[1]},code-block">${p[2]}</code></pre>`)
-        })
+
+
+        // var codePattern = /`{3}([^\n]*)\n([^`]*)`{3}/gmi
+        // var match1 = mdinput.matchAll(codePattern)
+        // var matchList = Array.from(match1)
+        // matchList.forEach(p => {
+        //     //               console.log(p)
+        //     mdinput = mdinput.replaceAll(p[0], `\n<pre><code class="${p[1]}, language-${p[1]},code-block">${p[2]}</code></pre>`)
+        // })
 
 
 
@@ -485,21 +519,22 @@ function SevnJS() {
         }
 
 
-        lex = lex.filter(o => o.type !== "empty")
+        // lex = lex.filter(o => o.type !== "empty")
 
 
         //foreachitem in lex
         for (var j = 0; j < lex.length; j++) {
             var block = lex[j]
             var rend = ""
-            //renderhtml
-            if (block.type == "html1" || block.type == "html2") {
-                var rend = block.content
-            }
             //rendercode
-            else if (block.type == "code") {
+            if (block.type == "code") {
                 var rend = coderender(block.content)
             }
+            //renderhtml
+            else if (block.type == "html1" || block.type == "html2") {
+                var rend = block.content
+            }
+            
             //rendertable
             else if (block.type == "table") {
                 var rend = tablerender(block.content)
@@ -523,8 +558,11 @@ function SevnJS() {
             else if (block.type == "heading1") {
                 var rend = heading1render(block.content)
             }
-            else if (block.type == "heading2") {
-                var rend = heading2render(block.content)
+            else if (block.type == "checklist") {
+                var rend = checklistrender(block.content)
+            }
+            else if (block.type == "empty") {
+                var rend = emptyrender(block.content)
             }
 
             lex[j].render1 = rend
@@ -553,7 +591,10 @@ function SevnJS() {
         try {
             if (parentid instanceof Object == true) { var parentElement = parentid }
             else {
-                var parentElement = document.querySelectorAll(parentid)[0];
+                var match = parentid.match(/^([^\[]*)\[*(\d*)\]*$/mi);
+                var parentidstr = match[1];
+                var no = match[2] > 0 ? match[2] : 0;
+                var parentElement = document.querySelectorAll(parentidstr)[no];
             }
             // var parentElement = self.get(parentid)[0]
             var T = document.createElement('div')

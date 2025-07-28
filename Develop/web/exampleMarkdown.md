@@ -6,6 +6,36 @@
 ==Highlight== (if supported)
 
 
+### html code
+
+```html
+<script src = "test"></script>
+<script defer>
+var a = 1;
+</script>
+<div>
+<p>parar</p>
+
+</div>
+```
+### actual html
+<script src = "test"></script>
+<script defer>
+var a = 1;
+alert("hi)
+</script>
+<div>
+<p>parar</p>
+
+</div>
+
+### python code
+```python
+a= 1
+b = 2
+c = a+b
+print(c)
+```
 
 # H1
 ## H2
@@ -24,9 +54,12 @@
 ![Placeholder](https://via.placeholder.com/150) 
 <https://autolink.com>
 
+
 ```javascript
-console.log("Syntax highlighting");
+var a = "message"
+var b = `hi`;
 ```
+
 
 | Syntax | Works? |
 | ------ | ------ |
@@ -36,9 +69,9 @@ console.log("Syntax highlighting");
 > - With **formatting**
 
 
-- [ ] All text formatting renders correctly 
+- [x] All text formatting renders correctly 
 - [ ] Headings show hierarchy 
-- [ ] Lists nest properly 
+- [X] Lists nest properly 
 - [ ] Links/images are clickable 
 - [ ] Code blocks have syntax highlighting 
 - [ ] Tables align correctly 
