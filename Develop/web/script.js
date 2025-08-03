@@ -1,5 +1,3 @@
-// load("./parsemdbeta.js");
-
 const loadSkelton =()=> {
   append(app, gen(header, "header", "", "header"), "o");
   append(header, gen(nav, "nav", gen(ul,"navlist",gen(li,"",gen(a,"","Home","","/"))), "nav"));
@@ -123,6 +121,9 @@ getfile("./exampleMarkdown.md", (data) => {
       .replace(/>/g, "&gt;");
 
     append("#preview-code", gen(pre, "", htmlPreviewText), "over");
+//test
+    
+
   });
 });
 
@@ -141,3 +142,8 @@ setTimeout(
 append("#header",gen(header,"appheader","","header"),"r")
 
 load(["/defaults.js","/header.js"])
+
+
+
+
+
