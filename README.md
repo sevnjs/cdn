@@ -1,46 +1,56 @@
-# SevnJS cdn
+# **SevnJS CDN**
 
-- To host and distribute SevnJS and minified version
-- To keep version history for production level apps
-- To keep development setup 
+* Hosts and distributes SevnJS and its minified versions.
+* Maintains version history for production-level applications.
+* Provides a setup for development use.
 
+---
 
+# **Version History**
 
+### **v0.8.4**
 
+#### Update: `gen`
 
+Now supports multilevel nested tag generation.
+The first parameter can contain comma-separated tags, and the second parameter can accept comma-separated IDs.
+For example:
 
-
-# Version History
-
-### v0.8.4
-
-#### update gen. 
-Now multilevel nested tags can be generated, first paramenter can contains coma seperated tags, and second paramenter can also take coma seperated ids,
-given code ```script 
-gens("ul, li, a", "nav", "text", "classa, classb, classc")
+```javascript
+gens("ul, li, a", "nav", "text", "classa, classb, classc");
 ```
-Will create nested elements like this.
-```html 
+
+Generates the following nested elements:
+
+```html
 <ul id="nav">
-    <li>
-        <a class="classa classb classc">text</a>
-    </li>
+  <li>
+    <a class="classa classb classc">text</a>
+  </li>
 </ul>
 ```
 
-### v0.8.3
-- Improve parsemd to work with checklist and fix html codeblock
-- Improved grab and append to define specific element when selecting from classname or elementtag using [number], say `grab("h1[2]"")` or `append("h1[2]"","newheading","r")`.
-- Show version in load
+---
 
+### **v0.8.3**
 
-### v0.8.2
-- Refactor load, now it can also work with string input containing mix of scripts, css and scss seperated by coma.
-- Added show and hide function
-- Added nix-shell and python script to minify sevn.js to sevn.min.js and sevn.min.js.gz
+* Improved `parsemd` to handle checklists and fixed issues with HTML code blocks.
+* Enhanced `grab` and `append` to allow selection by index using `[number]`, e.g., `grab("h1[2]")` or `append("h1[2]", "newheading", "r")`.
+* Displays version info during load.
 
-### v0.8.1
+---
 
-Relaunching GeneratorJS as SevnJS, copy last updated version from generatorjs.github.io.
-SevJS is formely known as GeneratorJS.
-It is named SevnJS because of its 7 functions to frontend design.
+### **v0.8.2**
+
+* Refactored `load`: now accepts a string containing a mix of scripts, CSS, and SCSS separated by commas.
+* Added `show()` and `hide()` utility functions.
+* Added `nix-shell` and Python script to minify `sevn.js` to `sevn.min.js` and `sevn.min.js.gz`.
+
+---
+
+### **v0.8.1**
+
+* Relaunched **GeneratorJS** as **SevnJS**.
+* Ported the latest version from [generatorjs.github.io](https://generatorjs.github.io).
+* SevnJS, formerly known as GeneratorJS, is named for its **seven core functions** dedicated to front-end design.
+
