@@ -8,6 +8,10 @@
 
 # **Version History**
 
+### **v0.8.5*
+
+- Minor bug fix in `grab`
+
 ### **v0.8.4**
 
 #### Update: `gen`

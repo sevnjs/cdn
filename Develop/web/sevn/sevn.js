@@ -1,13 +1,11 @@
 function SevnJS() {
     const license = "copyrights Prateek Raj Gautam, soon to be released under Apache 2.0";
-    const version = `v0.8.4`;
+    const version = `v0.8.5`;
 
     //grab start
     const grab = (parentidstr) => {
         var match = parentidstr.match(/^([^\[]*)\[*(\d*)\]*$/mi);
         var parentid = match[1];
-        // if (match[2].length > 0) var no = match[2]
-        var no = match[2] > 0 ? match[2] : 0;
         var parentElement = null;
         try {
             if (parentid instanceof Object == true) { parentElement = parentid }
@@ -19,10 +17,8 @@ function SevnJS() {
             console.log(`grab(${parentidstr})`);
             console.error(err);
         }
-        if (no) return parentElement[no]
+        if (match[2].length > 0) return parentElement[match[2]];
         else return parentElement
-
-
     };
     //grab end
 
