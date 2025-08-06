@@ -318,7 +318,8 @@ function SevnJS() {
             match1 = md.matchAll(inlinecodePattern);
             matchList = Array.from(match1);
             matchList.forEach(p => {
-                md = md.replaceAll(p[0], `<code class='parsemd-code code-inline'>${p[1]}</code>`);
+                var htmlsafecode = p[1].replaceAll("&", '&amp;').replaceAll('</', '&lt;&#47;').replaceAll("<", "&lt;").replaceAll(">", '&gt;');
+                md = md.replaceAll(p[0], `<code class='parsemd-code code-inline'>${htmlsafecode}</code>`);
             })
 
 
@@ -1531,5 +1532,6 @@ window.$ = SevnJS();
 $.init();
 
 // Load script.js from current directory
+
 
 load("./script.js");
