@@ -318,7 +318,7 @@ function SevnJS() {
             match1 = md.matchAll(inlinecodePattern);
             matchList = Array.from(match1);
             matchList.forEach(p => {
-                var htmlsafecode = p[1]..replaceAll("&", '&amp;').replaceAll('</', '&lt;&#47;').replaceAll("<", "&lt;").replaceAll(">", '&gt;');
+                var htmlsafecode = p[1].replaceAll("&", '&amp;').replaceAll('</', '&lt;&#47;').replaceAll("<", "&lt;").replaceAll(">", '&gt;');
                 md = md.replaceAll(p[0], `<code class='parsemd-code code-inline'>${htmlsafecode}</code>`);
             })
 

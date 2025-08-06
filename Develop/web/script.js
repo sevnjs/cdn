@@ -130,7 +130,7 @@ getfile("./exampleMarkdown.md", (data) => {
 
 
 
-$$.loadCopyright();
+WebHelper().loadCopyright();
 
 
 setTimeout(
