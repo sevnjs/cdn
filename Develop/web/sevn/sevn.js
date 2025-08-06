@@ -1,6 +1,6 @@
 function SevnJS() {
     const license = "copyrights Prateek Raj Gautam, soon to be released under Apache 2.0";
-    const version = `v0.8.5`;
+    const version = `v0.8.6`;
 
     //grab start
     const grab = (parentidstr) => {
