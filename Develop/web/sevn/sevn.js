@@ -1,6 +1,6 @@
 function SevnJS() {
     const license = "copyrights Prateek Raj Gautam, soon to be released under Apache 2.0";
-    const version = `v0.8.6`;
+    const version = `v0.8.7`;
 
     //grab start
     const grab = (parentidstr) => {
@@ -325,7 +325,8 @@ function SevnJS() {
 
             // // blockMath
             //https://regex101.com/r/QdJcQS/1
-            var blockMathPattern = /\${2}([^$\n]+)\${2}/gm;
+            // var blockMathPattern = /\${2}([^$\n]+)\${2}/gm;
+            var blockMathPattern = /(?<![\B(){}\[\]\w.$])\$\$([^\$\n]+)\$\$(?![\B(){}\[\]\w.$])/gm;
             match1 = md.matchAll(blockMathPattern);
             matchList = Array.from(match1);
             matchList.forEach(p => {
@@ -337,7 +338,8 @@ function SevnJS() {
             // // inlineMath
             //https://regex101.com/r/QdJcQS/1
             // var inlineMathPattern = /(?<!\$)\$([^$\n]+)\$(?!\$)/gm
-            var inlineMathPattern = /(?<!\$)\$([^$\n]+)\$(?!\$)/mg;
+            // var inlineMathPattern = /(?<!\$)\$([^$\n]+)\$(?!\$)/mg;
+            var inlineMathPattern = /(?<![\B(){}\[\]\w.$])\$([^\$\n]+)\$(?![\B(){}\[\]\w.$])/gm
 
             match1 = md.matchAll(inlineMathPattern);
             matchList = Array.from(match1);

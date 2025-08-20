@@ -8,7 +8,12 @@
 
 # **Version History**
 
-### **v0.8.5*
+### **v0.8.7**
+
+- fix `parsemd` to process inline and block math
+
+
+### **v0.8.5**
 
 - Minor bug fix in `grab`
 
