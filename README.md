@@ -8,6 +8,12 @@
 
 # **Version History**
 
+
+
+### **v0.8.7**
+- fix `parsemed` codeblock render detection and workaround with javascript string literal tick (\`) in code.  
+
+
 ### **v0.8.7**
 
 - fix `parsemd` to process inline and block math

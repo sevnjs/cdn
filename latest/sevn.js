@@ -1,6 +1,6 @@
 function SevnJS() {
     const license = "copyrights Prateek Raj Gautam, soon to be released under Apache 2.0";
-    const version = `v0.8.7`;
+    const version = `v0.8.8`;
 
     //grab start
     const grab = (parentidstr) => {
@@ -27,7 +27,8 @@ function SevnJS() {
 
         //subfunctions start
         var blockPattern = {
-            code: /^\s*```([^\n]*)\n([^`]*)```[\s\n]*/mi,
+            // code: /\s*```([^\n]*)\n([^`]*)```[\s\n]*/mi,
+            code: /^\s*```(?:(\w*)\n)?([\s\S]*?)```[\s\n]*/mi,
             // html1:/^\s*<(?!\/)([^>\s]*)[^>]*>[\s\S]*?<\/\1>[\s\n]*/mi,
             html1: /^<(?!\/)([^>\s]*)[^>]*>[\s\S]*?<\/\1>[\s\n]*/mi,
             html2: /<(br|hr|img|area|base|col|embed|input|link|meta|param|source|track|wbr)[^\>]*?>\s*\n*/i,
@@ -41,8 +42,9 @@ function SevnJS() {
             list: /^\s*(?m:^(?:\s*(?:\*|-|\d+\.)\s+[^\n]+)(?:\n|$))+/m,
             reference: /^\n+\-{3,}$/im,
             // paragraph:/^\s*[^\n]+(\s|\n)*/im,
-            paragraph: /^(^[^-#|>\s][^\n]*(?:\n[^-#|>\s][^\n]*)*)/im,
-            empty: /^\s*[\s\n]*/m,
+            // paragraph: /^(^[^-#|>\s][^\n]*(?:\n[^-#|>\s][^\n]*)*)/im,
+            paragraph: /^(^[^-#|>\s][^\n]*(?:\n[^-#|>\s`][^\n]*)*)/im,
+            empty: /^[\s\n]*/m,
             unknown: /^\s*.*\n*$/mi
         };
 
@@ -77,7 +79,8 @@ function SevnJS() {
         }
 
         const renderpattern = {
-            code: /^\s*```([^\n]*)\n([^`]*)```[\s\n]*/mi,
+            // code: /^\s*```([^\n]*)\n([^`]*)```[\s\n]*/mi,
+            code: /^\s*```(?:(\w*)\n)?([\s\S]*?)```[\s\n]*/mi,
             heading1: /^\#{1,6}\s+([^\n]*)[\s\n]*/i,
             heading2: /^(\w[^\n]*)\n(-|\=){4,}[\s\n]*/im,
             block: /^^\s*>\s+([^\n]*)[\s\n]*/i,
@@ -92,7 +95,8 @@ function SevnJS() {
 
 
         const coderender = (block) => {
-            var pattern = /^\s*```([^\n]*)\n([^`]*)```[\s\n]*/mi;
+            // var pattern = /^\s*```([^\n]*)\n([^`]*)```[\s\n]*/mi;
+            var pattern = /^\s*```(?:(\w*)\n)?([\s\S]*?)```[\s\n]*/mi;
             const match = block.match(pattern);
             if (match) {
                 var matchArray = Array.from(match);

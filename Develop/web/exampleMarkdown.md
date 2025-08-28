@@ -8,9 +8,17 @@
 `<div>` and `</div>`
 
 
+### js code
+javascript
+```javascript
+var a = 1;
+var b = `value of a id ${a}`;
+```
+
+
+
 
 ### html code
-
 ```html
 <script src = "test"></script>
 <script defer>
