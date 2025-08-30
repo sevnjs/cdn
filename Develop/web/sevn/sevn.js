@@ -96,7 +96,8 @@ function SevnJS() {
 
         const coderender = (block) => {
             // var pattern = /^\s*```([^\n]*)\n([^`]*)```[\s\n]*/mi;
-            var pattern = /^\s*```(?:(\w*)\n)?([\s\S]*?)```[\s\n]*/mi;
+            // var pattern = /^\s*```(?:([^\n]*)\n)?([\s\S]*?)```[\s\n]*/mi;//jsfrindly working;
+            var pattern = /^\s*```([^\n]*)\n([\s\S]*)```[\s\n]*/mi; //js frindly and simple;
             const match = block.match(pattern);
             if (match) {
                 var matchArray = Array.from(match);

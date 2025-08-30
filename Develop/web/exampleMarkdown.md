@@ -6,8 +6,13 @@
 ==Highlight== (if supported)
 
 `<div>` and `</div>`
+## bash code 
 
-
+bash codeblock 
+```bash
+a=1;
+echo $a;
+```
 ### js code
 javascript
 ```javascript
