@@ -9,8 +9,11 @@
 # **Version History**
 
 
+### **v0.8.9**
 
-### **v0.8.7**
+- update `parsemd`, escape | in table if inside inline code block, bold italic escape if not enclosed with not word characters
+
+### **v0.8.8**
 - fix `parsemed` codeblock render detection and workaround with javascript string literal tick (\`) in code.  
 
 

@@ -1,6 +1,6 @@
 function SevnJS() {
     const license = "copyrights Prateek Raj Gautam, soon to be released under Apache 2.0";
-    const version = `v0.8.8`;
+    const version = `v0.8.9`;
 
     //grab start
     const grab = (parentidstr) => {
@@ -141,13 +141,16 @@ function SevnJS() {
         const tablerender = (table) => {
 
 
-            var tableHeadBodySepratorPattern = /(^\|)(?=(:|-))([^\w\d\s]*?)(\|\s*$)/gm;
+            // var tableHeadBodySepratorPattern = /(^\|)(?=(:|-))([^\w\d\s]*?)(\|\s*$)/gm;
+            var tableHeadBodySepratorPattern = /(^\|)\s*(?=(:|-))([^\w\d]*?)(\|\s*$)/gm;
             var sep = table.matchAll(tableHeadBodySepratorPattern);
             var sep = Array.from(sep);
             if (sep.length > 0) {
                 var Sep = sep[0][0];
                 var alignment = Sep.substr(1, Sep.length - 2);
-                alignment = alignment.replaceAll(":---:", "center").replaceAll(":---", "left").replaceAll("---:", "right").replaceAll("---", "justify");
+                // alignment = alignment.replaceAll(":---:", "center").replaceAll(":---", "left").replaceAll("---:", "right").replaceAll("---", "justify");
+                // alignment = alignment.replaceAll(/\s*/g,"");
+                alignment = alignment.replaceAll(/\s*\:-{3,}\:\s*/gi, "center").replaceAll(/\s*\:-{3,}\s*/gi, "left").replaceAll(/\s*-{3,}\:\s*/ig, "right").replaceAll(/\s*-{3,}\s*/ig, "justify");
                 alignment = alignment.split("|");
                 var T = table.split(Sep);
                 var thead = T[0];
@@ -181,8 +184,35 @@ function SevnJS() {
             };
 
             function RowParser(Row, alignment) {
+
+                function splitPipeOutsideBackticks(str) {
+                    const result = [];
+                    let current = '';
+                    let insideBacktick = false;
+                  
+                    for (let i = 0; i < str.length; i++) {
+                      const char = str[i];
+                  
+                      if (char === '`') {
+                        insideBacktick = !insideBacktick; // toggle backtick mode
+                        current += char;
+                      } else if (char === '|' && !insideBacktick) {
+                        result.push(current);
+                        current = '';
+                      } else {
+                        current += char;
+                      }
+                    }
+                  
+                    // Push the final part
+                    if (current) result.push(current);
+                  
+                    return result;
+                  }
+
                 var parsedRow = ""
-                var Col = Row.split("|")
+                // var Col = Row.split("|") // not suitable to escape alone usie function to split
+                var Col = splitPipeOutsideBackticks(Row)
                 Col.forEach((cell, i) => {
                     parsedRow = parsedRow + `<td class='${alignment[i]}'>${cell}</td>`;
                 })
@@ -382,7 +412,7 @@ function SevnJS() {
 
 
             // // bold/italic/emph
-            var italicPattern = /([*_]{1,3})(\S[^\*_\n]+?\S)\1/mig
+            var italicPattern = /(?<=\W)([*_]{1,3})(\S[^\*_\n]+?\S)\1(?=\W)/mig;// need to be checked
             //   var italicPattern = /(?<marks>\*{1,3}|_{1,3})(?<content>[^\s*_]+)\k<marks>/gmi
             // var italicPattern = /([\s]+)((\*|_){1,3})([^\*_\n]+?)\1(?=\W)/gmi
             match1 = md.matchAll(italicPattern)
@@ -405,7 +435,8 @@ function SevnJS() {
             // // strikethrough
             // https://regex101.com/r/MLsQRh/1
             //   var strikethroughPattern = /([~=]{2})(.*)\1/igm
-            var strikethroughPattern = /([~=]{2})([^~=\n]+)\1/igm
+            // var strikethroughPattern = /(?=\W)([~=]{2,})([^~=\n]+)\1/igm
+            var strikethroughPattern = /(?<=\W)([~=]{2,})([^~=\n]+)\1(?=\W)/gmi;
             match1 = md.matchAll(strikethroughPattern);
             matchList = Array.from(match1);
             matchList.forEach(p => {

@@ -1,3 +1,8 @@
+content_asdfsdf_asdfsdaf_asfsaf__asdf
+
+
+
+
 *Italic* 
 **Bold** 
 ~~Strikethrough~~ 
@@ -45,6 +50,22 @@ alert("hi)
 
 </div>
 
+
+# table 
+
+
+| Syntax | Works? |
+| :------ | :------: |
+| Tables |      sdef |
+
+sdf
+
+
+| Syntax | Works? |
+|:------|:------:|
+| Tables |      `s | def` |
+
+
 ### python code
 ```python
 a= 1
@@ -75,11 +96,6 @@ print(c)
 var a = "message"
 var b = `hi`;
 ```
-
-
-| Syntax | Works? |
-| ------ | ------ |
-| Tables |       |
 
 > Blockquote 
 > - With **formatting**
