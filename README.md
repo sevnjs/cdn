@@ -9,6 +9,10 @@
 # **Version History**
 
 
+### **v0.9.0**
+- fix `parsemd`, proper bold italic render with simple regex
+
+
 ### **v0.8.9**
 
 - update `parsemd`, escape | in table if inside inline code block, bold italic escape if not enclosed with not word characters

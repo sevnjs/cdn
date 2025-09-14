@@ -1,6 +1,6 @@
 function SevnJS() {
     const license = "copyrights Prateek Raj Gautam, soon to be released under Apache 2.0";
-    const version = `v0.8.9`;
+    const version = `v0.9.0`;
 
     //grab start
     const grab = (parentidstr) => {
@@ -412,7 +412,10 @@ function SevnJS() {
 
 
             // // bold/italic/emph
-            var italicPattern = /(?<=\W)([*_]{1,3})(\S[^\*_\n]+?\S)\1(?=\W)/mig;// need to be checked
+            var italicPattern = /([*_]{1,3})(\S.*?\S)\1(?!\S)/g;
+            // var italicPattern = /(?=[(^|\S)])([_*]{1,3})([`~!@#$%^&\*\(\\)\_\-\+\=\\\w ]+?)\1(?![\S])/gmi;
+            // var italicPattern = /(?=[(^|\S)])([_*]{1,3})([\w \*+\-\\\$#@1\d]+?)\1(?=[\n\s])/gmi;
+            // var italicPattern = /(?<=\W)([*_]{1,3})(\S[^\*_\n]+?\S)\1(?=\W)/mig;// need to be checked
             //   var italicPattern = /(?<marks>\*{1,3}|_{1,3})(?<content>[^\s*_]+)\k<marks>/gmi
             // var italicPattern = /([\s]+)((\*|_){1,3})([^\*_\n]+?)\1(?=\W)/gmi
             match1 = md.matchAll(italicPattern)
