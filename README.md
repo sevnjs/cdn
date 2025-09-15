@@ -9,6 +9,10 @@
 # **Version History**
 
 
+### **v0.9.1**
+- fix `parsemd`,  callback fixed, causing problem with parseNotebook, if callback is missing.
+
+
 ### **v0.9.0**
 - fix `parsemd`, proper bold italic render with simple regex
 

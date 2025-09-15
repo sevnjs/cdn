@@ -1,6 +1,6 @@
 function SevnJS() {
     const license = "copyrights Prateek Raj Gautam, soon to be released under Apache 2.0";
-    const version = `v0.9.0`;
+    const version = `v0.9.1`;
 
     //grab start
     const grab = (parentidstr) => {
@@ -18,7 +18,7 @@ function SevnJS() {
             console.error(err);
         }
         if (match[2].length > 0) return parentElement[match[2]];
-        else return parentElement
+        else return parentElement;
     };
     //grab end
 
@@ -63,7 +63,7 @@ function SevnJS() {
                     }
                 }
                 return { type: "unknown", match: "", unprocessed: text }; // Return unknown if no match found
-            }
+            };
 
 
 
@@ -75,8 +75,8 @@ function SevnJS() {
                     continue;
                 }
             }
-            return res
-        }
+            return res;
+        };
 
         const renderpattern = {
             // code: /^\s*```([^\n]*)\n([^`]*)```[\s\n]*/mi,
@@ -90,7 +90,7 @@ function SevnJS() {
             reference: /^\n+\-{3,}$/im,
             paragraph: /^(^[^-#|>\s][^\n]*(?:\n[^-#|>\s][^\n]*)*)/im,
             empty: /^\s*[\s\n]*/m,
-        }
+        };
 
 
 
@@ -104,7 +104,7 @@ function SevnJS() {
                 var content = matchArray[2];
                 var lang = matchArray[1];
                 var res = gens(pre, "", gens(code, "", content, `language-${lang},${lang},code-block`));
-                return res
+                return res;
             }
         }
 
@@ -217,7 +217,7 @@ function SevnJS() {
                     parsedRow = parsedRow + `<td class='${alignment[i]}'>${cell}</td>`;
                 })
                 parsedRow = `\n\t<tr>\n\t${parsedRow}\n</tr>\n`;
-                return parsedRow
+                return parsedRow;
             };
 
 
@@ -264,7 +264,7 @@ function SevnJS() {
                 var paratext = processIndentedLines(matchArray[1]);
                 var formatted = textformat(paratext);
                 var res = gens(p, "", formatted);
-                return res
+                return res;
 
             }
         }
@@ -277,7 +277,7 @@ function SevnJS() {
             if (match) {
                 var matchArray = Array.from(match);
                 var res = `<h${matchArray[1].length + 1}>${textformat(matchArray[2])}</h${matchArray[1].length + 1}>`;
-                return textformat(res)
+                return textformat(res);
                 // return res
             }
         }
@@ -291,7 +291,7 @@ function SevnJS() {
                 else if (matchArray[2][2] == "=") var htype = 2;
                 var res = `<h${htype}>${textformat(matchArray[1])}</h${htype}>`;
 
-                return textformat(res)
+                return textformat(res);
                 // return res
             }
         }
@@ -340,11 +340,11 @@ function SevnJS() {
                         }
                     }
                 };
-                return parseline
+                return parseline;
             })
 
             var res = md.join("\n\n").replaceAll(/<\/ul>\n+<ul>/g, "").replaceAll(/<\/ol>\n+<ol>/g, "").replaceAll("</ol><ol>", "").replaceAll("</ul><ul>", "");
-            return textformat(res)
+            return textformat(res);
         }
 
         const textformat = (md) => {
@@ -450,7 +450,7 @@ function SevnJS() {
 
 
             // reference
-            https://regex101.com/r/eLzXSC/1                                 
+            // https://regex101.com/r/eLzXSC/1                                 
             var referencelinkPattern = /(?<!!)\[([^\]]*)\]\s{0,3}\[([^\]]*)\]/gmi;
 
             match1 = md.matchAll(referencelinkPattern);
@@ -490,7 +490,7 @@ function SevnJS() {
                 // md = md.replaceAll(p[0], `\n<ul>${block}</ul>`)
                 md = md.replaceAll(p[0], `\n${block}`);
             })
-            return md
+            return md;
 
         }
         //subfunctions end
@@ -612,7 +612,8 @@ function SevnJS() {
             rend1join = `${rend1join}${lex[j].render1}`;
         }
 
-        callback(rend1join)
+        //if callback defined and is function call it with rend1join
+        if (callback != undefined && typeof callback === "function") { callback(rend1join); }
         return rend1join;
 
 
