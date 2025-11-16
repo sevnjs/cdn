@@ -91,7 +91,15 @@ function mathjaxUpdate() {
   }
   var mdText = grab("#markdown-code")[0].innerText;
   // parsemd(mdText, updatePreview);
-  parsemd(mdText, updatePreview);
+  parsemd(mdText, (H,S)=>{
+    updatePreview(H)
+    var scr1 = document.createElement("script");
+    scr1.innerHTML = S
+    // document.head.appendChild(scr1)
+    append(body,gen("script","",S))
+    
+  });
+  
   mathjaxUpdate();
 }
 

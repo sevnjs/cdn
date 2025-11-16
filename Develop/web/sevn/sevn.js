@@ -1,6 +1,6 @@
 function SevnJS() {
     const license = "copyrights Prateek Raj Gautam, soon to be released under Apache 2.0";
-    const version = `v0.9.1`;
+    const version = `v0.9.2`;
 
     //grab start
     const grab = (parentidstr) => {
@@ -24,6 +24,7 @@ function SevnJS() {
 
     //parsemd start
     const parsemd = (mdinput, callback) => {
+        var scriptArray = [];
 
         //subfunctions start
         var blockPattern = {
@@ -412,7 +413,8 @@ function SevnJS() {
 
 
             // // bold/italic/emph
-            var italicPattern = /([*_]{1,3})(\S.*?\S)\1(?!\S)/g;
+            var italicPattern = /([*_]{1,3})(\S.*?\S)\1/g;
+            // var italicPattern = /([*_]{1,3})(\S.*?\S)\1(?!\S)/g;
             // var italicPattern = /(?=[(^|\S)])([_*]{1,3})([`~!@#$%^&\*\(\\)\_\-\+\=\\\w ]+?)\1(?![\S])/gmi;
             // var italicPattern = /(?=[(^|\S)])([_*]{1,3})([\w \*+\-\\\$#@1\d]+?)\1(?=[\n\s])/gmi;
             // var italicPattern = /(?<=\W)([*_]{1,3})(\S[^\*_\n]+?\S)\1(?=\W)/mig;// need to be checked
@@ -559,6 +561,15 @@ function SevnJS() {
 
         // lex = lex.filter(o => o.type !== "empty")
 
+        function extractscript(htmlstr){
+            const parser = new DOMParser();
+            const docstr = parser.parseFromString(htmlstr, "text/html");
+            const scripts = docstr.querySelectorAll("script");
+            const scriptstr = Array.from(scripts).map(scr => scr.innerHTML)
+            // console.log(scriptstr.join("\n"))
+            return scriptstr
+        }
+
 
         //foreachitem in lex
         for (var j = 0; j < lex.length; j++) {
@@ -571,6 +582,9 @@ function SevnJS() {
             //renderhtml
             else if (block.type == "html1" || block.type == "html2") {
                 var rend = block.content;
+                // extract javascript code from between script tags
+                scriptArray.push(extractscript(rend))
+                
             }
             
             //rendertable
@@ -611,10 +625,13 @@ function SevnJS() {
         for (var j = 0; j < lex.length; j++) {
             rend1join = `${rend1join}${lex[j].render1}`;
         }
+        // join script if present
+        var scriptString = scriptArray.join();
 
         //if callback defined and is function call it with rend1join
-        if (callback != undefined && typeof callback === "function") { callback(rend1join); }
-        return rend1join;
+        if (callback != undefined && typeof callback === "function") { callback(rend1join, scriptString); }
+        
+        return rend1join, scriptString;
 
 
     }

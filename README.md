@@ -9,6 +9,12 @@
 # **Version History**
 
 
+
+
+### **v0.9.2**
+- fix `parsemd`, proper bold italic, parsemd return script as second argument and pass them to callback
+
+
 ### **v0.9.1**
 - fix `parsemd`,  callback fixed, causing problem with parseNotebook, if callback is missing.
 

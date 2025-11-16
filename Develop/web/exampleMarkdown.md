@@ -26,7 +26,10 @@ var a = 1;
 var b = `value of a id ${a}`;
 ```
 
-
+<script>
+    var a = 1;
+    console.log(a);
+</script>
 
 
 ### html code
