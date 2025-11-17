@@ -10,6 +10,7 @@ pkgs.mkShellNoCC {
     nodejs
     nodePackages.browser-sync 
     nodePackages.nodemon
+    nodePackages.concurrently
     vscodium 
     #firefox
     vim 

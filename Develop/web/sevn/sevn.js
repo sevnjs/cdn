@@ -1,6 +1,6 @@
 function SevnJS() {
     const license = "copyrights Prateek Raj Gautam, soon to be released under Apache 2.0";
-    const version = `v0.9.2`;
+    const version = `v0.9.3`;
 
     //grab start
     const grab = (parentidstr) => {
@@ -118,11 +118,11 @@ function SevnJS() {
             var res = "";
             if (match) {
                 var matchArray = Array.from(match);
-                matchArray.forEach(parts=>{
-                    var checked = (parts[1]== " ") ? false:true;
+                matchArray.forEach(parts => {
+                    var checked = (parts[1] == " ") ? false : true;
                     var checkboxid = `checkbox-id-${checkboxno}`;
-                    res += gens(input,checkboxid,parts[2],"parsemd",{value:parts[2],"type":"checkbox",checked:checked})+gens(label,"",parts[2],"parsemd",{"for":checkboxid})+"<br>";
-                    res=res.replaceAll(`checked="false"`,"");
+                    res += gens(input, checkboxid, parts[2], "parsemd", { value: parts[2], "type": "checkbox", checked: checked }) + gens(label, "", parts[2], "parsemd", { "for": checkboxid }) + "<br>";
+                    res = res.replaceAll(`checked="false"`, "");
                     checkboxno += 1;
                 })
                 return res
@@ -190,26 +190,26 @@ function SevnJS() {
                     const result = [];
                     let current = '';
                     let insideBacktick = false;
-                  
+
                     for (let i = 0; i < str.length; i++) {
-                      const char = str[i];
-                  
-                      if (char === '`') {
-                        insideBacktick = !insideBacktick; // toggle backtick mode
-                        current += char;
-                      } else if (char === '|' && !insideBacktick) {
-                        result.push(current);
-                        current = '';
-                      } else {
-                        current += char;
-                      }
+                        const char = str[i];
+
+                        if (char === '`') {
+                            insideBacktick = !insideBacktick; // toggle backtick mode
+                            current += char;
+                        } else if (char === '|' && !insideBacktick) {
+                            result.push(current);
+                            current = '';
+                        } else {
+                            current += char;
+                        }
                     }
-                  
+
                     // Push the final part
                     if (current) result.push(current);
-                  
+
                     return result;
-                  }
+                }
 
                 var parsedRow = ""
                 // var Col = Row.split("|") // not suitable to escape alone usie function to split
@@ -561,7 +561,7 @@ function SevnJS() {
 
         // lex = lex.filter(o => o.type !== "empty")
 
-        function extractscript(htmlstr){
+        function extractscript(htmlstr) {
             const parser = new DOMParser();
             const docstr = parser.parseFromString(htmlstr, "text/html");
             const scripts = docstr.querySelectorAll("script");
@@ -584,9 +584,9 @@ function SevnJS() {
                 var rend = block.content;
                 // extract javascript code from between script tags
                 scriptArray.push(extractscript(rend))
-                
+
             }
-            
+
             //rendertable
             else if (block.type == "table") {
                 var rend = tablerender(block.content);
@@ -630,7 +630,7 @@ function SevnJS() {
 
         //if callback defined and is function call it with rend1join
         if (callback != undefined && typeof callback === "function") { callback(rend1join, scriptString); }
-        
+
         return rend1join, scriptString;
 
 
@@ -640,121 +640,144 @@ function SevnJS() {
 
 
 
-
     //append start
     const append = (parentid, childhtml, position = 'after') => {
+        // Convert position to lowercase for case-insensitive comparison
         position = position.toLowerCase();
         try {
-            if (parentid instanceof Object == true) { var parentElement = parentid }
-            else {
-                var match = parentid.match(/^([^\[]*)\[*(\d*)\]*$/mi);
-                var parentidstr = match[1];
-                var no = match[2] > 0 ? match[2] : 0;
-                var parentElement = document.querySelectorAll(parentidstr)[no];
+            // Determine the parent element
+            let parentElement;
+            if (parentid instanceof Object) {
+                // If parentid is already a DOM element, use it directly
+                parentElement = parentid
+            } else {
+                // Otherwise, query the DOM to find the first matching element
+                parentElement = document.querySelectorAll(parentid)[0];
             }
-            // var parentElement = self.get(parentid)[0]
-            var T = document.createElement('div');
-            T.id = 'T';
-            T.innerHTML = "";
-            // array
-            if (Array.isArray(childhtml) == true) {
 
+            // Get the tag name of the parent element in lowercase
+            var parentTag = parentElement.tagName.toLowerCase();
+
+            // Check if the parent element is part of a table (table, thead, tbody, tr, or td)
+            if (parentTag == 'table' || parentTag == 'thead' || parentTag == 'tbody' || parentTag == 'tr' || parentTag == 'td') {
+                // For table elements, create a temporary <table> placeholder
+                var T = document.createElement('table');
+                T.id = 'T';
+                T.innerHTML = ""; // Initialize with empty content
+            } else {
+                // For non-table elements, create a temporary <div> placeholder
+                var T = document.createElement('div');
+                T.id = 'T';
+                T.innerHTML = ""; // Initialize with empty content
+            }
+
+            // Handle childhtml if it is an array
+            if (Array.isArray(childhtml)) {
                 childhtml.forEach((child, index) => {
                     if (typeof child == 'string') {
+                        // If the child is a string, append it directly to the placeholder's innerHTML
                         T.innerHTML += child;
-                    }
-                    else if (typeof child != 'string') {
+                    } else if (typeof child != 'string') {
                         if (child.outerHTML != undefined) {
+                            // If the child is a DOM element with outerHTML, append its outerHTML
                             T.innerHTML += child.outerHTML;
                         }
                         if (child.outerHTML == undefined) {
+                            // If the child is an object without outerHTML, convert it to HTML using objtohtml
                             T.innerHTML += objtohtml(child);
                         }
                     }
-                    //may be removed
+                    // This block may be removed (legacy or unused logic)
                     else if (self.isHTML(child)) {
                         T.innerHTML += child.outerHTML;
                     }
-                    // console.log(T.innerHTML)
                 });
-
-
             }
-            // non array
+            // Handle childhtml if it is not an array
             else if (Array.isArray(childhtml) == false) {
-
                 if (childhtml != undefined) {
                     if (typeof childhtml == 'string') {
+                        // If childhtml is a string, append it directly to the placeholder's innerHTML
                         T.innerHTML += childhtml;
                     }
                     if (typeof childhtml != 'string') {
                         if (childhtml.outerHTML != undefined) {
+                            // If childhtml is a DOM element with outerHTML, append its outerHTML
                             T.innerHTML += childhtml.outerHTML;
                         }
                         if (childhtml.outerHTML == undefined) {
+                            // If childhtml is an object without outerHTML, append it directly
                             T.innerHTML += childhtml;
                         }
                     }
                 }
             }
 
-
+            // Insert the content based on the specified position
             if (position == 'before' || position == 'b') {
+                // Insert the content before the parent element's existing content
                 parentElement.innerHTML = T.innerHTML + parentElement.innerHTML;
             } else if (position == 'over' || position == 'o') {
+                // Replace the parent element's content entirely
                 if (T.innerHTML != null) parentElement.innerHTML = T.innerHTML;
                 if (T.innerHTML == null) parentElement.innerHTML = '';
             } else if (position == 'replace' || position == 'r') {
+                // Replace the parent element itself with the new content
                 parentElement.outerHTML = T.innerHTML;
             } else if (position == 'after' || position == 'a') {
+                // Insert the content after the parent element's existing content
                 parentElement.innerHTML = parentElement.innerHTML + T.innerHTML;
             } else if (position == 'parent' || position == 'p') {
+                // Wrap the parent element with the new content
                 var oldElement = parentElement.outerHTML;
                 parentElement.innerHTML = "";
                 T.childNodes[0].innerHTML += oldElement;
                 parentElement.outerHTML = T.innerHTML;
             } else {
+                // Default behavior: append the content after the parent element's existing content
                 parentElement.innerHTML = parentElement.innerHTML + T.innerHTML;
             }
-        }
-        catch (err) {
+        } catch (err) {
+            // Log any errors that occur during execution
             console.log(`append(${parentid}, ${childhtml}, ${position})`);
             console.error(err);
         }
 
     };
-    //append 
+    //append end
 
-   //gen start
-    const gen = (elementtype, idin, htmlin,classin, src, event) => {
-        var elementarray = elementtype.replaceAll(/\s+/g,"").split(",");
-        var idarray = idin.replaceAll(/\s+/g,"").split(",");
+
+
+    //gen start
+    const gen = (elementtype, idin, htmlin, classin, src, event) => {
+        var elementarray = elementtype.replaceAll(/\s+/g, "").split(",");
+        var idarray = idin.replaceAll(/\s+/g, "").split(",");
         // if elementarray.length > 1; recursive
-        if (elementarray.length > 1){
+        if (elementarray.length > 1) {
             //pullout first element
-            elementarray=elementarray.toReversed();
+            elementarray = elementarray.toReversed();
             elementtype = elementarray.pop();
             var elementstr = elementarray.toReversed().join(",");
-            if (idarray.length > 1){
+            if (idarray.length > 1) {
                 idarray = idarray.toReversed();
                 idin = idarray.pop();
-                var idinstr = idarray.toReversed().join(","); 
+                var idinstr = idarray.toReversed().join(",");
             }
-            else if (idarray.length == 1){
+            else if (idarray.length == 1) {
                 idin = idarray[0];
                 var idinstr = "";
             }
             else {
-                idin= "";
-                var idinstr= "";
+                idin = "";
+                var idinstr = "";
             }
             //calling recursive and update with created element
-            htmlin = gens(elementstr,idinstr,htmlin,classin,src,event);
-            classin="";
-            src="";
-            event="";
+            htmlin = gens(elementstr, idinstr, htmlin, classin, src, event);
+            classin = "";
+            src = "";
+            event = "";
         }
-        else if (elementarray.length = 1){
+        else if (elementarray.length = 1) {
             elementtype = elementarray[0];
             idin = idarray[0];
         };
@@ -896,7 +919,7 @@ function SevnJS() {
 
 
 
-   //load start
+    //load start
     const load = (srcList, pos = "head") => {
         //loadlink start
         const loadlink = (currentLink) => {
@@ -936,9 +959,9 @@ function SevnJS() {
                 srcList = srcList.replaceAll(/\s+/g, ",").replaceAll(/,{2,}/g, ",").split(",");
             }
             // if (srcList.length > 0) {
-                for (var i = 0; i < srcList.length; i++) {
-                    loadlink(srcList[i]);
-                }
+            for (var i = 0; i < srcList.length; i++) {
+                loadlink(srcList[i]);
+            }
             // }
         }
         catch (err) {
@@ -982,7 +1005,7 @@ function SevnJS() {
     self.get = (parentid) => {
         console.error("get is depricated, use grab instead");
         return self.grab(parentid)
-   };
+    };
     self.grab = grab;
     self.append = append;
     self.gen = gen;
@@ -1480,7 +1503,7 @@ function SevnJS() {
     self.hide = (c) => {
         if (c != null) c.style.display = "none";
     };
-    
+
     self.show = (c) => {
         if (c != null) c.style.display = "initial";
     };

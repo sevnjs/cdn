@@ -10,6 +10,8 @@
 
 
 
+### **v0.9.3**
+- fix append to work with table elements, using code from old commit in generatorjs
 
 ### **v0.9.2**
 - fix `parsemd`, proper bold italic, parsemd return script as second argument and pass them to callback
