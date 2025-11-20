@@ -1,6 +1,6 @@
 function SevnJS() {
     const license = "copyrights Prateek Raj Gautam, soon to be released under Apache 2.0";
-    const version = `v0.9.3`;
+    const version = `v0.9.4-beta`;
 
     //grab start
     const grab = (parentidstr) => {
@@ -680,7 +680,9 @@ function SevnJS() {
                     } else if (typeof child != 'string') {
                         if (child.outerHTML != undefined) {
                             // If the child is a DOM element with outerHTML, append its outerHTML
-                            T.innerHTML += child.outerHTML;
+                            T.appendChild(child);
+                            // if (child.tagName != "SCRIPT") {T.innerHTML += child.outerHTML}
+                            // else {T.appendChild(child);}
                         }
                         if (child.outerHTML == undefined) {
                             // If the child is an object without outerHTML, convert it to HTML using objtohtml
@@ -704,6 +706,8 @@ function SevnJS() {
                         if (childhtml.outerHTML != undefined) {
                             // If childhtml is a DOM element with outerHTML, append its outerHTML
                             T.innerHTML += childhtml.outerHTML;
+                            // if (childhtml.tagName != "SCRIPT") {T.innerHTML += childhtml.outerHTML}
+                            // else {T.appendChild(childhtml.outerHTML);}
                         }
                         if (childhtml.outerHTML == undefined) {
                             // If childhtml is an object without outerHTML, append it directly
@@ -713,6 +717,7 @@ function SevnJS() {
                 }
             }
 
+   
             // Insert the content based on the specified position
             if (position == 'before' || position == 'b') {
                 // Insert the content before the parent element's existing content
@@ -844,11 +849,13 @@ function SevnJS() {
                                     elementarray.innerHTML = htmlin[jj];
                                     if (elementtype == 'input') elementarray.value = htmlin[jj];
                                     if (elementtype == 'img') element.alt = htmlin[jj];
+                                    if (elementtype == 'script') {element.textContent = htmlin[jj];};
                                 }
                                 if (typeof (htmlin) == "object") {
                                     elementarray.innerHTML = htmlin[jj];
                                     if (elementtype == 'input') elementarray.value = htmlin[jj];
                                     if (elementtype == 'img') element.alt = htmlin[jj];
+                                    if (elementtype == 'script') {element.textContent = htmlin[jj];};
                                 }
                             };
                             //Array of strings non html
@@ -990,11 +997,14 @@ function SevnJS() {
     };
     self.loadBasicHtmlVariables = () => {
         // console.info("loadBasicHtmlVariables")
-        let listOfBasicHtmlTags = "div,p,span,b,i,img,video,picture,canvas,svg,audio,h1,h2,h3,h4,h5,h6,table,thead,tbody,tr,td,ul,li,ol,a,textarea,input,output,select,option,checkbox,radio,button,embed,object,iframe,kbd,code,dl,dt,dd,meta,pre,form,fieldset,legend,label,section,main,aside,header,footer,nav,meta,head,body,dialog,details,summary,figure,figcaption,sidebar,style,script,del,ins,wbr,mark,time";
+        let listOfBasicHtmlTags = "html,head,title,base,link,meta,style,body,section,nav,article,aside,h1,h2,h3,h4,h5,h6,header,footer,address,p,hr,pre,blockquote,ol,ul,li,dl,dt,dd,figure,figcaption,main,div,a,em,strong,small,s,cite,q,dfn,abbr,data,time,code,var,samp,kbd,sub,sup,i,b,u,mark,ruby,rt,rp,bdi,bdo,span,br,wbr,ins,del,img,iframe,embed,object,param,video,audio,source,track,canvas,map,area,svg,math,form,fieldset,legend,label,input,button,select,datalist,optgroup,option,textarea,output,progress,meter,details,summary,dialog,script,noscript,template,g,defs,symbol,use,image,switch,desc,metadata,view,foreignObject,rect,circle,ellipse,line,polyline,polygon,path,text,tspan,textPath,marker,pattern,clipPath,mask,filter,feBlend,feColorMatrix,feComponentTransfer,feComposite,feConvolveMatrix,feDiffuseLighting,feDisplacementMap,feDistantLight,feFlood,feFuncA,feFuncB,feFuncG,feFuncR,feGaussianBlur,feImage,feMerge,feMergeNode,feMorphology,feOffset,fePointLight,feSpecularLighting,feSpotLight,feTile,feTurbulence,linearGradient,radialGradient,stop,animate,animateMotion,animateTransform,set";
+        
         let list = listOfBasicHtmlTags.replaceAll(' ', ',').replaceAll(',,', ',')
         list.split(",").forEach(tag => {
             if (tag.length > 0) {
-                var expression = `window.${tag} = '${tag}'`;
+                // var expression = `window.${tag} = '${tag}'`;
+                // making variables immutable
+                var expression = `Object.defineProperty(window, "${tag}", {value:"${tag}",writable:false,configurable:false});`;
                 self.eval(expression);
             }
         })

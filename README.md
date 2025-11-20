@@ -9,6 +9,12 @@
 # **Version History**
 
 
+### **v0.9.4-beta**
+- `gen` and `append` trying to work with script tags, 
+  - still append is not executing scripts, 
+  - pending need to detect scripts and append as appendChild
+- added html and svg tag names as immutable variables
+
 
 ### **v0.9.3**
 - fix append to work with table elements, using code from old commit in generatorjs

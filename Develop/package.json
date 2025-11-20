@@ -5,7 +5,7 @@
   "main": "main.js",
   "scripts": {
     "server": "nodemon SERVER/server.js",
-    "sync": "browser-sync start -p '127.0.0.1:3000' --port 4000 --files 'web/**/*' --no-inject-changes --ws",
+    "sync": "browser-sync start -p '127.0.0.1:3000' --port 4000 --files '**.*, web/**/*' --no-inject-changes --ws",
     "dev": "concurrently \"npm run server\" \"npm run sync\""
   },
   "keywords": [],
