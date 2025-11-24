@@ -1,6 +1,6 @@
 function SevnJS() {
     const license = "copyrights Prateek Raj Gautam, soon to be released under Apache 2.0";
-    const version = `v0.9.4-beta`;
+    const version = `v0.9.4`;
 
     //grab start
     const grab = (parentidstr) => {
@@ -716,6 +716,36 @@ function SevnJS() {
                     }
                 }
             }
+
+
+
+
+
+            
+            //dynamically add script tags in an executable way
+            function appendScript(parentElement, scripttag) {
+                // Create a new script element
+                var newScript = document.createElement('script');
+                newScript.textContent = scripttag.textContent;
+                newScript.id = scripttag.id || '';
+                parentElement.appendChild(newScript);
+            };
+            //detect if Appending part is an script then use appendChild method to append
+            var parser = new DOMParser();
+            var appending = parser.parseFromString(T.innerHTML, "text/html");
+            var scripts = appending.querySelectorAll("script");
+            if (scripts.length == 1 && scripts[0].outerHTML.length == T.innerHTML.length) {
+                try {
+                    appendScript(parentElement, scripts[0]);
+                    T.innerHTML = "";
+                    } catch (error) {
+                    console.error("Error appending script or not a script:", error);                  
+                }
+            };
+
+
+
+
 
    
             // Insert the content based on the specified position

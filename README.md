@@ -8,6 +8,9 @@
 
 # **Version History**
 
+### **v0.9.4**
+
+- `append` works with scripts that execute
 
 ### **v0.9.4-beta**
 - `gen` and `append` trying to work with script tags, 
