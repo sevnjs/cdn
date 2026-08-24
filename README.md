@@ -8,6 +8,11 @@
 
 # **Version History**
 
+### **v0.9.5**
+
+- `gen` rewrite in modular form, works better with dictioanry like objects, minor fix in gens and genp
+
+
 ### **v0.9.4**
 
 - `append` works with scripts that execute

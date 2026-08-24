@@ -1,6 +1,6 @@
 function SevnJS() {
     const license = "copyrights Prateek Raj Gautam, soon to be released under Apache 2.0";
-    const version = `v0.9.4`;
+    const version = `v0.9.5`;
 
     //grab start
     const grab = (parentidstr) => {
@@ -784,173 +784,217 @@ function SevnJS() {
 
 
     //gen start
-    const gen = (elementtype, idin, htmlin, classin, src, event) => {
-        var elementarray = elementtype.replaceAll(/\s+/g, "").split(",");
-        var idarray = idin.replaceAll(/\s+/g, "").split(",");
-        // if elementarray.length > 1; recursive
-        if (elementarray.length > 1) {
-            //pullout first element
-            elementarray = elementarray.toReversed();
-            elementtype = elementarray.pop();
-            var elementstr = elementarray.toReversed().join(",");
-            if (idarray.length > 1) {
-                idarray = idarray.toReversed();
-                idin = idarray.pop();
-                var idinstr = idarray.toReversed().join(",");
-            }
-            else if (idarray.length == 1) {
-                idin = idarray[0];
-                var idinstr = "";
-            }
-            else {
-                idin = "";
-                var idinstr = "";
-            }
-            //calling recursive and update with created element
-            htmlin = gens(elementstr, idinstr, htmlin, classin, src, event);
-            classin = "";
-            src = "";
-            event = "";
+    
+    const gen = (elementtype, idin, htmlin, classin, src) => {
+        // 2-arg shorthand: gen(tag, contentObjectOrArrayOrString-that-isn't-an-id)
+        // If idin was given but isn't a string, it wasn't meant to be an id list —
+        // it was meant to be htmlin. Shift everything over by one.
+        if (idin !== undefined && idin !== null && typeof idin !== "string") {
+            src = classin;
+            classin = htmlin;
+            htmlin = idin;
+            idin = "";
         }
-        else if (elementarray.length = 1) {
-            elementtype = elementarray[0];
-            idin = idarray[0];
+
+        // ---------------------------------------------------------------------------
+        // small utilities
+        // ---------------------------------------------------------------------------
+
+        /** Split "a, b ,c" -> ["a","b","c"], trimming whitespace, dropping empties. */
+        const splitList = (str, sep = ",") => {
+            if (str === undefined || str === null || str === "") return [];
+            return String(str)
+                .split(sep)
+                .map((s) => s.trim())
+                .filter((s) => s.length > 0);
         };
+
+        /** Apply a comma/space separated class string to an element. */
+        const applyClass = (element, classStr) => {
+            if (!classStr) return;
+            splitList(classStr).forEach((cls) => element.classList.add(cls));
+        };
+
+        /**
+         * Set the "content" of an already-created element, per the string/Node/
+         * object rules described in the header. Arrays are NOT handled here —
+         * the caller expands arrays into multiple elements before calling this.
+         */
+        const setContent = (element, content) => {
+            if (content === undefined || content === null) return;
+
+            // Node (DOM element, text node, etc.) -> append directly
+            if (content instanceof Node) {
+                element.appendChild(content);
+                return;
+            }
+
+            // Plain object -> attribute bag (+ optional `innerHtml` content key)
+            if (typeof content === "object") {
+                for (const [key, value] of Object.entries(content)) {
+                    if (key === "innerHtml" || key === "innerHTML") {
+                        setContent(element, value); // recurse: apply as string content
+                    } else if (key === "id") {
+                        element.id = value;
+                    } else if (key === "class" || key === "className") {
+                        applyClass(element, value);
+                    } else {
+                        element.setAttribute(key, value);
+                    }
+                }
+                return;
+            }
+
+            // Scalar (string/number/etc.) -> text, markup, or tag-specific property
+            const text = String(content);
+            const tag = element.tagName.toLowerCase();
+            if (tag === "input" || tag === "textarea" || tag === "select") {
+                element.value = text;
+            } else if (tag === "img") {
+                element.alt = text;
+            } else if (text.includes("<") && text.includes(">")) {
+                element.innerHTML = text;
+            } else {
+                element.textContent = text;
+            }
+        };
+
+        /** Apply the `src` param: string -> href/src, object -> arbitrary attrs. */
+        const applySrc = (element, srcVal) => {
+            if (srcVal === undefined || srcVal === null) return;
+            if (typeof srcVal === "object") {
+                for (const [key, value] of Object.entries(srcVal)) {
+                    element.setAttribute(key, value);
+                }
+            } else if (element.tagName.toLowerCase() === "a" || element.tagName.toLowerCase() === "link") {
+                element.href = srcVal;
+            } else {
+                element.src = srcVal;
+            }
+        };
+
+        // ---------------------------------------------------------------------------
+        // content-holder builders (single item vs array of items)
+        // ---------------------------------------------------------------------------
+
+        /**
+         * Build ONE content-holder item, possibly as a '+' chain of nested tags
+         * (e.g. "li+a" -> <li><a>...</a></li>). `content` lands in the innermost
+         * tag of the chain; `classForItem` is applied to the OUTERMOST tag of the
+         * chain (the item's "root", so it's stylable as a unit); ids are applied
+         * per sub-tag from `idChain`.
+         */
+        const buildChainItem = (tagChain, idChain, content, classForItem) => {
+            let outerEl = null;
+            let innerEl = null;
+            tagChain.forEach((tag, i) => {
+                const el = document.createElement(tag);
+                if (idChain[i]) el.id = idChain[i];
+                if (innerEl) innerEl.appendChild(el);
+                else outerEl = el;
+                innerEl = el;
+            });
+            setContent(innerEl, content);
+            if (classForItem) applyClass(outerEl, classForItem);
+            return outerEl;
+        };
+
+        /**
+         * Build the content-holder level. Returns a single Element for scalar
+         * content, or an ARRAY of Elements (one per item, plain array — no
+         * DocumentFragment) for array content. `tagSeg`/`idSeg` are the raw
+         * (possibly '+'-joined) strings for this level.
+         */
+        const buildContentHolder = (tagSeg, idSeg, content, classForHolder) => {
+            const tagChain = splitList(tagSeg, "+");
+            const idChainRaw = splitList(idSeg, "+");
+
+            if (!Array.isArray(content)) {
+                // Scalar content: single chain item, no index suffix.
+                return buildChainItem(tagChain, idChainRaw, content, classForHolder);
+            }
+
+            // Array content: one chain item per array entry, with `${id}-${index}`
+            // suffixing applied per sub-tag of the chain. Plain array, not a
+            // DocumentFragment, so downstream appendChild is unambiguous.
+            return content.map((item, index) => {
+                const idChain = idChainRaw.map((id) => `${id}-${index}`);
+                return buildChainItem(tagChain, idChain, item, classForHolder);
+            });
+        };
+
+        /** Wrap an array of item elements inside a new container element. */
+        const wrapItems = (tag, id, items) => {
+            const wrapper = document.createElement(tag);
+            if (id) wrapper.id = id;
+            items.forEach((item) => wrapper.appendChild(item));
+            return wrapper;
+        };
+
+        // ---------------------------------------------------------------------------
+        // build
+        // ---------------------------------------------------------------------------
+
         try {
-            if (htmlin != undefined) {
-                // console.log(htmlin.isArray)
-                if (Array.isArray(htmlin) != true) {
-                    var element = document.createElement(elementtype);
-                    if (idin != undefined && idin != "") {
-                        element.id = idin;
+            const tagLevels = splitList(elementtype);
+            const idLevels = splitList(idin);
+            if (tagLevels.length === 0) throw new Error("elementtype must have at least one tag");
+
+            const holderTagSeg = tagLevels[tagLevels.length - 1];
+            const holderIdSeg = idLevels[tagLevels.length - 1]; // positional, may be undefined
+
+            // Build the innermost (content-holder) piece first: Element, or
+            // Array<Element> if htmlin was an array.
+            let result = buildContentHolder(holderTagSeg, holderIdSeg, htmlin, classin);
+
+            if (tagLevels.length === 1) {
+                // No outer wrapper levels exist. If content was an array, we
+                // still need a single real container element to return.
+                if (Array.isArray(result)) {
+                    result = wrapItems(holderTagSeg.split("+")[0], "", result);
+                }
+            } else {
+                // Wrap outward through remaining outer levels. classin never
+                // applies here — it belongs to the content holder only. The
+                // first outer level absorbs an item array directly (each item
+                // becomes its child); every level after that just nests further.
+                for (let i = tagLevels.length - 2; i >= 0; i--) {
+                    if (Array.isArray(result)) {
+                        result = wrapItems(tagLevels[i], idLevels[i], result);
+                    } else {
+                        const wrapper = document.createElement(tagLevels[i]);
+                        if (idLevels[i]) wrapper.id = idLevels[i];
+                        wrapper.appendChild(result);
+                        result = wrapper;
                     }
-                    if (htmlin.nodeName === undefined) {
-                        // console.log(typeof (htmlin))
-                        if (typeof (htmlin) != "object") {
-                            // if (elementtype == 'code' || elementtype == 'pre') {
-                            if (elementtype == 'code') {
-                                element.innerText = htmlin;
-                            } else if (elementtype == 'input') {
-                                element.value = htmlin;
-                            } else if (elementtype == 'img') {
-                                element.alt = htmlin;
-                            }
-                            else {
-                                element.innerHTML = htmlin;
-                            }
-                        }
-                        if (typeof (htmlin) == "object") {
-                            element.innerHTML = htmlin;
-                            if (elementtype == 'input') element.value = htmlin;
-                            if (elementtype == 'img') element.alt = htmlin;
-                        }
-                    };
-                    if (htmlin.nodeName != undefined) {
-                        element.append(htmlin);
-                    };
-                    if (classin != undefined && classin != "") {
-                        // element.classList.add(classin);
-                        element.classList += classin.replaceAll(',', ' ').replaceAll(', ', ' ');
-                    }
-                }
-                //generate multiple element if array
-                if (Array.isArray(htmlin) == true) {
-                    // console.log(htmlin)
-                    // var element = [];
-
-                    var element = document.createElement("div")
-                    let arrayholder = document.createElement("div", "arrayholder", "")
-                    // console.log(htmlin.length)
-                    var checkfirstinput = htmlin[0];
-
-                    for (var jj = 0; jj < htmlin.length; jj++) {
-
-                        //if not object
-                        if (typeof checkfirstinput != 'object') {
-                            var elementarray = document.createElement(elementtype);
-                            if (idin != undefined && idin != "") {
-                                elementarray.id = `${idin}-${jj}`;
-                            }
-
-                            //Array of html elements
-                            if (htmlin[jj].nodeName === undefined) {
-                                // console.log(typeof (htmlin))
-                                if (typeof (htmlin) != "object") {
-                                    elementarray.innerHTML = htmlin[jj];
-                                    if (elementtype == 'input') elementarray.value = htmlin[jj];
-                                    if (elementtype == 'img') element.alt = htmlin[jj];
-                                    if (elementtype == 'script') {element.textContent = htmlin[jj];};
-                                }
-                                if (typeof (htmlin) == "object") {
-                                    elementarray.innerHTML = htmlin[jj];
-                                    if (elementtype == 'input') elementarray.value = htmlin[jj];
-                                    if (elementtype == 'img') element.alt = htmlin[jj];
-                                    if (elementtype == 'script') {element.textContent = htmlin[jj];};
-                                }
-                            };
-                            //Array of strings non html
-                            if (htmlin[jj].nodeName != undefined) {
-                                elementarray.append(htmlin[jj]);
-                                // console.log(htmlin);
-                                // console.log(htmlin.nodeName);
-                            };
-                            if (classin != undefined && classin != "") {
-                                // element.classList.add(classin);
-                                elementarray.classList += classin.replaceAll(',', ' ').replaceAll(', ', ' ');
-                            }
-                        }
-
-                        // if object
-                        if (typeof checkfirstinput == 'object') {
-                            // elementarray = objtohtml(htmlin[jj])
-                            elementarray = jsonToElement(htmlin[jj]);
-                            var elementtypeholder = document.createElement(elementtype);
-                            elementtypeholder.append(elementarray);
-                            elementarray = elementtypeholder;
-                        }
-                        arrayholder.innerHTML += elementarray.outerHTML;
-
-                    }
-                    element = arrayholder.innerHTML;
-                    // console.log(element)
-                }
-
-
-            }
-
-            if (htmlin == undefined) {
-                var element = document.createElement(elementtype);
-                if (idin != undefined && idin != "") {
-                    element.id = idin;
-                }
-                if (classin != undefined && classin != "") {
-                    // element.classList.add(classin);
-                    element.classList += classin.replaceAll(',', ' ').replaceAll(', ', ' ');
-                }
-            }
-            // var src = { "id": "testid" }
-            if (src != undefined) {
-                if (src instanceof Object == true) {
-                    var objArray = Object.entries(src);
-                    objArray.forEach(A1 => {
-                        element.setAttribute(A1[0], A1[1]);
-                    })
-
-                }
-                else if (src instanceof Object == false) {
-                    if (elementtype == 'a') { element.href = src } else { element.src = src }
                 }
             }
 
-
-            return element;
-
-        }
-        catch (err) {
-            console.error("Error during gen(", elementtype, idin, htmlin, classin, src, ")", err
-            )
+            applySrc(result, src);
+            return result;
+        } catch (err) {
+            console.error("Error during gen(", elementtype, idin, htmlin, classin, src, ")", err);
+            return null;
         }
     };
+
+    /** gens: same args as gen, returns the outerHTML string (or null). */
+    const gens = (...args) => {
+        const el = gen(...args);
+        return el && el.outerHTML ? el.outerHTML.toString() : null;
+    };
+
+    /** genp: same args as gen, returns HTML-entity-escaped outerHTML (or null). */
+    const genp = (...args) => {
+        const html = gens(...args);
+        if (html === null) return null;
+        return html
+            .replaceAll("&", "&amp;")
+            .replaceAll("</", "&lt;&#47;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;");
+    };
+
     //gen end
 
 
@@ -1041,6 +1085,11 @@ function SevnJS() {
     };
 
 
+ 
+
+
+
+
     //get depricated
     self.get = (parentid) => {
         console.error("get is depricated, use grab instead");
@@ -1049,6 +1098,8 @@ function SevnJS() {
     self.grab = grab;
     self.append = append;
     self.gen = gen;
+    self.gens = gens;
+    self.genp = genp;
     self.parsemd = parsemd;
 
     // check if content is html
@@ -1061,17 +1112,9 @@ function SevnJS() {
 
 
 
-    self.gens = (...args) => {
-        var el = self.gen(...args);
-        var elstr = el.outerHTML.toString();
-        return elstr
-    }
 
-    self.genp = (...args) => {
-        var el = self.gens(...args);
-        var elstr = el.replaceAll("&", '&amp;').replaceAll('</', '&lt;&#47;').replaceAll("<", "&lt;").replaceAll(">", '&gt;');
-        return elstr
-    }
+
+
 
 
 

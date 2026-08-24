@@ -22,7 +22,7 @@ pkgs.mkShellNoCC {
   shellHook = ''
     cowsay ${message}
 #    npm run dev & echo "y" | codium . #& firefox localhost:3000 & npm run dev & firefox 127.0.0.1:5502
-	npm run dev & echo "y" | code . & firefox 127.0.0.1:4000
+	npm run dev & echo "y" | codium . & firefox 127.0.0.1:4000
 
     '';
 }
