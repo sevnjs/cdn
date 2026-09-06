@@ -1,6 +1,6 @@
 function SevnJS() {
     const license = "copyrights Prateek Raj Gautam, soon to be released under Apache 2.0";
-    const version = `v0.9.5`;
+    const version = `v0.9.6`;
 
     //grab start
     const grab = (parentidstr) => {
@@ -102,9 +102,11 @@ function SevnJS() {
             const match = block.match(pattern);
             if (match) {
                 var matchArray = Array.from(match);
-                var content = matchArray[2];
+                //var content = matchArray[2];
+                var content = self.escapeHtml(matchArray[2]);
                 var lang = matchArray[1];
-                var res = gens(pre, "", gens(code, "", content, `language-${lang},${lang},code-block`));
+                //var res = gen(pre, "", gen(code, "", content, `language-${lang},${lang},code-block`));
+                var res = `<pre><code class="language-${lang} ${lang} code-block">${content}</code></pre>`;
                 return res;
             }
         }
@@ -354,7 +356,8 @@ function SevnJS() {
             match1 = md.matchAll(inlinecodePattern);
             matchList = Array.from(match1);
             matchList.forEach(p => {
-                var htmlsafecode = p[1].replaceAll("&", '&amp;').replaceAll('</', '&lt;&#47;').replaceAll("<", "&lt;").replaceAll(">", '&gt;');
+                //var htmlsafecode = p[1].replaceAll("&", '&amp;').replaceAll('</', '&lt;&#47;').replaceAll("<", "&lt;").replaceAll(">", '&gt;');
+                var htmlsafecode = self.escapeHtml(p[1])
                 md = md.replaceAll(p[0], `<code class='parsemd-code code-inline'>${htmlsafecode}</code>`);
             })
 
@@ -800,14 +803,17 @@ function SevnJS() {
         // small utilities
         // ---------------------------------------------------------------------------
 
-        /** Split "a, b ,c" -> ["a","b","c"], trimming whitespace, dropping empties. */
-        const splitList = (str, sep = ",") => {
-            if (str === undefined || str === null || str === "") return [];
-            return String(str)
-                .split(sep)
-                .map((s) => s.trim())
-                .filter((s) => s.length > 0);
-        };
+        /** Split "a, b ,c" -> ["a","b","c"], trimming whitespace, dropping empties. */        
+        const splitList = (str) => {
+	    if (str === undefined || str === null || str === "") return [];
+	    return String(str)
+		.split(/[,; ]+/)  // Split by one or more of , ; or space
+		.map((s) => s.trim())
+		.filter((s) => s.length > 0);
+	};
+        
+        
+        
 
         /** Apply a comma/space separated class string to an element. */
         const applyClass = (element, classStr) => {
@@ -1591,9 +1597,13 @@ function SevnJS() {
         if (c != null) c.style.display = "initial";
     };
 
+	self.escapeHtml = (datastring) => {
+	return datastring.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;")
+	}
+
 
     self.verb = (input) => {
-        var op = input.outerHTML.toString().replaceAll("&", '&amp;').replaceAll('</', '&lt;&#47;').replaceAll("<", "&lt;").replaceAll(">", '&gt;');
+        var op = self.escapeHtml(input.outerHTML.toString());
         return op
     };
 
